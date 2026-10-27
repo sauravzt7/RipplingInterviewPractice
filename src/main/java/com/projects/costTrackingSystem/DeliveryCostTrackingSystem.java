@@ -2,21 +2,6 @@ package com.projects.costTrackingSystem;
 
 import java.util.*;
 
-/**
- * Delivery Cost Tracking System
- *
- * Part 1: Cost Calculation
- * - addDriver(driverId)
- * - addDelivery(driverId, startTime, endTime)
- * - getTotalCost()
- *
- * Part 2: Payment Tracking
- * - payUpToTime(upToTime)
- * - getCostToBePaid()
- *
- * Part 3: Analytics
- * - getMaxActiveDriversInLast24Hours(currentTime)
- */
 enum PayStatus {
     PAID,
     UNPAID
@@ -74,23 +59,10 @@ public class DeliveryCostTrackingSystem {
 
     public DeliveryCostTrackingSystem() {}
 
-    /**
-     * Registers a new driver to the system. O(1).
-     *
-     * @param driverId Unique identifier for the driver
-     */
     public void addDriver(String driverId) {
         driversMap.putIfAbsent(driverId, new Driver(driverId));
     }
 
-    /**
-     * Adds a delivery for a driver with given start and end time. O(log n).
-     * Cost of delivery = (endTime - startTime).
-     *
-     * @param driverId  Unique identifier for the driver
-     * @param startTime Start time in minutes
-     * @param endTime   End time in minutes (startTime <= endTime)
-     */
     public void addDelivery(String driverId, long startTime, long endTime) {
         Driver driver = driversMap.get(driverId);
         if (driver == null) {
@@ -107,21 +79,10 @@ public class DeliveryCostTrackingSystem {
         totalCost += del.cost;
     }
 
-    /**
-     * Returns the total cost across all drivers and deliveries added so far. O(1).
-     *
-     * @return Total cost across all deliveries
-     */
     public long getTotalCost() {
         return totalCost;
     }
 
-    /**
-     * Marks all deliveries that ended before or at upToTime (endTime <= upToTime) as paid.
-     * Amortised O(log n) per delivery: each delivery is popped from the heap at most once.
-     *
-     * @param upToTime Timestamp cutoff in minutes
-     */
     public void payUpToTime(long upToTime) {
         while (!unpaidByEndTime.isEmpty() && unpaidByEndTime.peek().endTime <= upToTime) {
             Delivery del = unpaidByEndTime.poll();
@@ -130,27 +91,10 @@ public class DeliveryCostTrackingSystem {
         }
     }
 
-    /**
-     * Returns the total cost of unpaid deliveries only. O(1).
-     *
-     * @return Total unpaid delivery cost
-     */
     public long getCostToBePaid() {
         return totalCost - totalPaid;
     }
 
-    /**
-     * Returns the number of unique drivers active in the 24-hour window
-     * [currentTime - 1440, currentTime]. There is only one window ending at currentTime,
-     * so the "max" is simply that count. A driver is active if any of their deliveries
-     * overlaps the window: startTime <= currentTime && endTime >= windowStart.
-     *
-     * Only deliveries that started at or before currentTime are scanned (TreeMap headMap),
-     * and the scan stops early once every registered driver has been seen.
-     *
-     * @param currentTime Current timestamp in minutes
-     * @return Count of unique active drivers in the last 24 hours
-     */
     public int getMaxActiveDriversInLast24Hours(long currentTime) {
         long windowStart = currentTime - WINDOW_MINUTES;
         Set<Driver> activeDrivers = new HashSet<>();
